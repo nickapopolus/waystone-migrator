@@ -1,0 +1,67 @@
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/bin/
+/pkg/
+/vendor/
+
+# Go test files
+*.test
+*.out
+coverage.txt
+coverage.html
+*.cover
+
+
+# Environment files (service-specific)
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+config.yaml
+config.yml
+*.config
+
+# GoLand/IntelliJ specific
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea_modules/
+out/
+gen/
+
+# Runtime and temporary files
+*.log
+*.tmp
+tmp/
+.tmp/
+logs/
+debug
+debug.test
+*.pid
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# Certificates and keys
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+certs/
+keys/
+proto/*
