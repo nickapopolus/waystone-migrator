@@ -1,6 +1,9 @@
 package migrator
 
-import "database/sql"
+import (
+	"database/sql"
+	"fmt"
+)
 
 type Migrator struct {
 	db             *sql.DB
@@ -55,6 +58,8 @@ func WithSeedsTable(table string) Option {
 
 func (m *Migrator) LoadMigrations() error {
 	m.migrations = make([]Migration, 0)
+
+	fmt.Println("Loading migrations...Blah Blah Blah")
 
 	return nil
 }
