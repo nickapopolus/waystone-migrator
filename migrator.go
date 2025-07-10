@@ -36,24 +36,24 @@ func NewMigrator(db *sql.DB, opts ...Option) (*Migrator, error) {
 	CREATE TABLE IF NOT EXISTS %s (
 	    version INTEGER PRIMARY KEY,
 	    filename VARCHAR(255) NOT NULL,
-	    applied_at TIMESTAMP WITH TIME ZONE,
+	    applied_at TIMESTAMP WITH TIME ZONE
 	)`, migrator.migrationTable)
 
 	_, err := db.Exec(migrationsQuery)
 	if err != nil {
-		return nil, errors.New("Could Not Initialize Migrations Table")
+		return nil, fmt.Errorf("Could Not Initialize Migrations Table %w", err)
 	}
 
 	seedQuery := fmt.Sprintf(`
 	CREATE TABLE IF NOT EXISTS %s (
 	    version INTEGER PRIMARY KEY,
 	    filename VARCHAR(255) NOT NULL,
-	    applied_at TIMESTAMP WITH TIME ZONE,
+	    applied_at TIMESTAMP WITH TIME ZONE
 	)`, migrator.seedTable)
 
 	_, err = db.Exec(seedQuery)
 	if err != nil {
-		return nil, errors.New("Could Not Initialize Seeds Table")
+		return nil, fmt.Errorf("Could Not Initialize Seeds Table %w", err)
 	}
 
 	return migrator, nil
