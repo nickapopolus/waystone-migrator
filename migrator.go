@@ -319,8 +319,8 @@ func (m *Migrator) executeMigration(migration Migration, isDown bool) error {
 			return fmt.Errorf("failed to record down migrations: %w", err)
 		}
 	} else {
-		query := fmt.Sprintf("INSERT INTO %s (version, name, applied_at) VALUES ($1, $2, now());", m.migrationTable)
-		_, err = transaction.Exec(query, migration.version, migration.name)
+		query := fmt.Sprintf("INSERT INTO %s (version, filename, applied_at) VALUES ($1, $2, now());", m.migrationTable)
+		_, err = transaction.Exec(query, migration.version, migration.filename)
 		if err != nil {
 			return fmt.Errorf("failed to record up migrations: %w", err)
 		}
