@@ -273,7 +273,7 @@ func (m *Migrator) parseFile(file os.DirEntry) (string, string, error) {
 }
 
 func (m *Migrator) splitSQL(sql string) []string {
-	commands := strings.Split(sql, ",")
+	commands := strings.Split(sql, ";")
 	var statements []string
 	for _, command := range commands {
 		fmt.Println(command)
