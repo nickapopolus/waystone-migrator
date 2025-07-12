@@ -276,15 +276,15 @@ func (m *Migrator) splitSQL(sql string) []string {
 	commands := strings.Split(sql, ";")
 	var statements []string
 	for _, command := range commands {
-		fmt.Println(command)
-	}
-	for _, command := range commands {
 		trimmedCommand := strings.TrimSpace(command)
 		if trimmedCommand == "" || strings.HasPrefix(trimmedCommand, "--") {
 			continue
 		}
 		if !strings.HasSuffix(trimmedCommand, ";") {
 			trimmedCommand = trimmedCommand + ";"
+		}
+		if strings.HasSuffix(trimmedCommand, ";") {
+			fmt.Println("Has Semicolon", trimmedCommand)
 		}
 		statements = append(statements, trimmedCommand)
 	}
