@@ -313,13 +313,13 @@ func (m *Migrator) executeMigration(migration Migration, isDown bool) error {
 		}
 	}
 	if isDown {
-		query := fmt.Sprintf("DELETE FROM %S WHERE VERSION = %d;", m.migrationTable, migration.version)
+		query := fmt.Sprintf("DELETE FROM %s WHERE VERSION = %d;", m.migrationTable, migration.version)
 		_, err = transaction.Exec(query)
 		if err != nil {
 			return fmt.Errorf("failed to record down migrations: %w", err)
 		}
 	} else {
-		query := fmt.Sprintf("INSERT INTO %S (version, name, applied_at) VALUES ($1, $2, now());", m.migrationTable)
+		query := fmt.Sprintf("INSERT INTO %s (version, name, applied_at) VALUES ($1, $2, now());", m.migrationTable)
 		_, err = transaction.Exec(query, migration.version, migration.name)
 		if err != nil {
 			return fmt.Errorf("failed to record up migrations: %w", err)
