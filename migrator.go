@@ -276,12 +276,15 @@ func (m *Migrator) splitSQL(sql string) []string {
 	commands := strings.Split(sql, ",")
 	var statements []string
 	for _, command := range commands {
+		fmt.Println(command)
+	}
+	for _, command := range commands {
 		trimmedCommand := strings.TrimSpace(command)
 		if trimmedCommand == "" || strings.HasPrefix(trimmedCommand, "--") {
 			continue
 		}
 		if !strings.HasSuffix(trimmedCommand, ";") {
-			trimmedCommand += ";"
+			trimmedCommand = trimmedCommand + ";"
 		}
 		statements = append(statements, trimmedCommand)
 	}
@@ -303,7 +306,8 @@ func (m *Migrator) executeMigration(migration Migration, isDown bool) error {
 	}
 	defer transaction.Rollback()
 	for i, statement := range statements {
-		fmt.Printf("Executing statement: %d/%d\n", i+1, len(statements))
+		line := i + 1
+		fmt.Printf("Executing statement: %d/%d\n", line, len(statements))
 		if _, err := transaction.Exec(statement); err != nil {
 			return fmt.Errorf("Error executing statement: %d/%d for migration %d %w\n", i, len(statements), migration.version, err)
 		}
