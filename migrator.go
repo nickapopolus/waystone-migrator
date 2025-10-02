@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Migrator struct {
@@ -42,7 +43,7 @@ func NewMigrator(db *sql.DB, opts ...Option) (*Migrator, error) {
 
 	_, err := db.Exec(migrationsQuery)
 	if err != nil {
-		return nil, fmt.Errorf("Could Not Initialize Migrations Table %w", err)
+		return nil, fmt.Errorf("Could Not Initialize Migrations Table %v", err)
 	}
 
 	seedQuery := fmt.Sprintf(`
@@ -54,7 +55,7 @@ func NewMigrator(db *sql.DB, opts ...Option) (*Migrator, error) {
 
 	_, err = db.Exec(seedQuery)
 	if err != nil {
-		return nil, fmt.Errorf("Could Not Initialize Seeds Table %w", err)
+		return nil, fmt.Errorf("Could Not Initialize Seeds Table %v", err)
 	}
 
 	return migrator, nil
@@ -158,14 +159,19 @@ func (m *Migrator) Down(targetVersion int) error {
 	return nil
 }
 
+func (m *Migrator) Seed() error {
+
+	return nil
+}
+
+func (m *Migrator) UnSeed() error {
+
+	return nil
+}
+
 func (m *Migrator) loadMigrations() error {
 	migrations := []Migration{}
 	fmt.Println("Loading migrations...")
-
-	//appliedMigrations, err := m.fetchAppliedMigrations()
-	//if err != nil {
-	//	return err
-	//}
 
 	migFiles, err := os.ReadDir(m.migrationsDir)
 	if err != nil {
@@ -192,7 +198,7 @@ func (m *Migrator) loadMigrations() error {
 		}
 		up, down, err := m.parseFile(migFile)
 		if err != nil {
-			message := fmt.Sprintf("is not a valid version number %w", err)
+			message := fmt.Sprintf("is not a valid version number %v", err)
 			return errors.New(message)
 		}
 		migration := Migration{
@@ -231,7 +237,7 @@ func (m *Migrator) validateMigrations(migrations []Migration) error {
 func (m *Migrator) fetchAppliedMigrations() (map[int]bool, error) {
 	appliedMigrations := map[int]bool{}
 
-	query := fmt.Sprintf("SELECT * FROM %s ORDER BY version ASC", m.migrationTable)
+	query := fmt.Sprintf("SELECT version, filename FROM %s ORDER BY version ASC", m.migrationTable)
 	result, err := m.db.Query(query)
 	if err != nil {
 		return nil, err
@@ -283,9 +289,6 @@ func (m *Migrator) splitSQL(sql string) []string {
 		if !strings.HasSuffix(trimmedCommand, ";") {
 			trimmedCommand = trimmedCommand + ";"
 		}
-		if strings.HasSuffix(trimmedCommand, ";") {
-			fmt.Println("Has Semicolon", trimmedCommand)
-		}
 		statements = append(statements, trimmedCommand)
 	}
 	return statements
@@ -319,8 +322,14 @@ func (m *Migrator) executeMigration(migration Migration, isDown bool) error {
 			return fmt.Errorf("failed to record down migrations: %w", err)
 		}
 	} else {
-		query := fmt.Sprintf("INSERT INTO %s (version, filename, applied_at) VALUES ($1, $2, now());", m.migrationTable)
-		_, err = transaction.Exec(query, migration.version, migration.filename)
+		driver := fmt.Sprintf("%T", m.db.Driver())
+		var query string
+		if strings.Contains(driver, "sqlite") {
+			query = fmt.Sprintf("INSERT INTO %s (version, filename, applied_at) VALUES (?, ?, ?);", m.migrationTable)
+		} else {
+			query = fmt.Sprintf("INSERT INTO %s (version, filename, applied_at) VALUES ($1, $2, $3);", m.migrationTable)
+		}
+		_, err = transaction.Exec(query, migration.version, migration.filename, time.Now())
 		if err != nil {
 			return fmt.Errorf("failed to record up migrations: %w", err)
 		}
